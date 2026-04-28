@@ -22,12 +22,13 @@
   width: 54px;
   height: 54px;
   flex: 0 0 auto;
-  border: 4px solid #172033;
+  border: 4px solid var(--brand-outline);
   border-radius: 50%;
   background:
     radial-gradient(circle at 50% 50%, #ffffff 0 17%, #172033 18% 25%, transparent 26%),
     linear-gradient(#d92635 0 46%, #172033 47% 54%, #ffffff 55% 100%);
   box-shadow: var(--soft-shadow);
+  transition: border-color 180ms ease;
 }
 
 .eyebrow {
@@ -40,6 +41,12 @@
 .app-header h1 {
   font-size: 4rem;
   font-weight: 900;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .favorite-summary,
@@ -56,6 +63,10 @@
   color: var(--muted);
   font-weight: 800;
   padding: 0 14px;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease;
 }
 
 .favorite-summary {
@@ -102,12 +113,13 @@
 }
 
 .search-input-wrap input::placeholder {
-  color: #7a8699;
+  color: var(--input-placeholder);
 }
 
 .icon-button,
 .favorite-button,
-.modal-close-button {
+.modal-close-button,
+.theme-toggle {
   width: 42px;
   height: 42px;
   display: inline-flex;
@@ -126,10 +138,16 @@
 
 .icon-button:hover,
 .favorite-button:hover,
-.modal-close-button:hover {
+.modal-close-button:hover,
+.theme-toggle:hover {
   transform: translateY(-1px);
   border-color: var(--blue);
   color: var(--blue);
+  background: var(--control-hover);
+}
+
+.theme-toggle {
+  color: var(--yellow);
 }
 
 .filter-panel-header {
@@ -167,7 +185,7 @@
 .pagination-button:hover:not(:disabled) {
   transform: translateY(-1px);
   border-color: var(--blue);
-  background: #eff6ff;
+  background: var(--control-hover);
 }
 
 .primary-button {
@@ -229,7 +247,12 @@ button.type-pill.is-selected {
 .skeleton-type-row span {
   display: inline-flex;
   overflow: hidden;
-  background: linear-gradient(90deg, #e7ebf2 0%, #f6f8fb 45%, #e7ebf2 90%);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-start) 0%,
+    var(--skeleton-mid) 45%,
+    var(--skeleton-start) 90%
+  );
   background-size: 200% 100%;
   animation: shimmer 1.2s linear infinite;
 }
@@ -293,8 +316,8 @@ button.type-pill.is-selected {
 
 .favorite-button[aria-pressed='true'] {
   color: var(--primary);
-  border-color: rgba(217, 38, 53, 0.32);
-  background: #fff1f2;
+  border-color: var(--favorite-border);
+  background: var(--favorite-bg);
 }
 
 .pokemon-number {
@@ -424,7 +447,7 @@ button.type-pill.is-selected {
   display: grid;
   place-items: center;
   padding: 20px;
-  background: rgba(12, 18, 30, 0.62);
+  background: var(--modal-backdrop);
   animation: fade-in 160ms ease both;
 }
 
@@ -455,14 +478,13 @@ button.type-pill.is-selected {
   gap: 18px;
   min-height: 460px;
   padding: 38px 28px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(255, 255, 255, 0.28)),
-    #fff4d6;
+  background: var(--modal-visual-overlay), var(--modal-visual-bg);
 }
 
 .modal-artwork {
   width: min(290px, 100%);
   height: 290px;
+  animation: pokemon-float 4s ease-in-out 220ms infinite;
 }
 
 .modal-artwork-placeholder {
@@ -513,6 +535,14 @@ button.type-pill.is-selected {
   font-weight: 900;
 }
 
+.metric-card {
+  animation: metric-rise 360ms ease both;
+}
+
+.metric-card:nth-child(2) {
+  animation-delay: 70ms;
+}
+
 .detail-section {
   display: grid;
   gap: 12px;
@@ -541,14 +571,20 @@ button.type-pill.is-selected {
   height: 10px;
   overflow: hidden;
   border-radius: 999px;
-  background: #e9eef6;
+  background: var(--stat-track);
 }
 
 .stat-fill {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--success), var(--blue));
+  background: linear-gradient(
+    90deg,
+    var(--stat-fill-start),
+    var(--stat-fill-end)
+  );
+  transform-origin: left center;
+  animation: stat-fill 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .stat-row strong {
@@ -714,6 +750,34 @@ button.type-pill.is-selected {
   }
 }
 
+@keyframes pokemon-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+
+  50% {
+    transform: translateY(-10px) rotate(1.5deg);
+  }
+}
+
+@keyframes metric-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@keyframes stat-fill {
+  from {
+    transform: scaleX(0);
+  }
+
+  to {
+    transform: scaleX(1);
+  }
+}
+
 @media (max-width: 760px) {
   .app-shell {
     width: min(100% - 20px, 560px);
@@ -722,6 +786,11 @@ button.type-pill.is-selected {
 
   .app-header {
     align-items: flex-start;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .brand-mark {
@@ -807,5 +876,14 @@ button.type-pill.is-selected {
     animation-duration: 1ms !important;
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
+  }
+
+  .modal-artwork {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .stat-fill {
+    animation: none !important;
   }
 }

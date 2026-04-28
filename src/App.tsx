@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { Heart } from 'lucide-react'
+import { Heart, Moon, Sun } from 'lucide-react'
 import {
   fetchPokemonBatch,
   fetchPokemonIndex,
@@ -17,6 +17,7 @@ import { SearchBar } from './components/SearchBar'
 import { SkeletonGrid } from './components/SkeletonGrid'
 import { TypeFilters } from './components/TypeFilters'
 import { useFavorites } from './hooks/useFavorites'
+import { useTheme } from './hooks/useTheme'
 import type { PokemonDetail } from './types/pokemon'
 
 const PAGE_SIZE = 24
@@ -29,6 +30,7 @@ function App() {
     null,
   )
   const { favoriteCount, isFavorite, toggleFavorite } = useFavorites()
+  const { isDarkMode, theme, toggleTheme } = useTheme()
 
   const pokemonIndexQuery = useQuery({
     queryKey: ['pokemon-index'],
@@ -157,9 +159,25 @@ function App() {
           </div>
         </div>
 
-        <div className="favorite-summary" aria-label="Saved favorites">
-          <Heart size={18} aria-hidden="true" fill="currentColor" />
-          <span>{favoriteCount}</span>
+        <div className="header-actions">
+          <button
+            type="button"
+            className="theme-toggle"
+            aria-label={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+            title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}
+            onClick={toggleTheme}
+          >
+            {theme === 'dark' ? (
+              <Sun size={18} aria-hidden="true" />
+            ) : (
+              <Moon size={18} aria-hidden="true" />
+            )}
+          </button>
+
+          <div className="favorite-summary" aria-label="Saved favorites">
+            <Heart size={18} aria-hidden="true" fill="currentColor" />
+            <span>{favoriteCount}</span>
+          </div>
         </div>
       </header>
 

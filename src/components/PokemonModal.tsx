@@ -1,10 +1,9 @@
 import { Heart, Ruler, Scale, X } from 'lucide-react'
 import { useEffect, type MouseEvent } from 'react'
+import { useCountUp } from '../hooks/useCountUp'
 import type { PokemonDetail } from '../types/pokemon'
 import {
-  formatHeight,
   formatPokemonName,
-  formatWeight,
   getPokemonArtwork,
   getStatValue,
   STAT_LABELS,
@@ -19,6 +18,51 @@ type PokemonModalProps = {
 
 const DETAIL_STATS = ['hp', 'attack', 'defense', 'speed']
 const MAX_STAT_VALUE = 180
+
+type MetricCounterProps = {
+  decimals?: number
+  targetValue: number
+  unit: string
+}
+
+function MetricCounter({
+  decimals = 1,
+  targetValue,
+  unit,
+}: MetricCounterProps) {
+  const displayValue = useCountUp(targetValue, {
+    decimals,
+    duration: 720,
+  })
+
+  return (
+    <>
+      {displayValue.toFixed(decimals)} {unit}
+    </>
+  )
+}
+
+type StatRowProps = {
+  label: string
+  value: number
+}
+
+function StatRow({ label, value }: StatRowProps) {
+  const displayValue = useCountUp(value, {
+    duration: 760,
+  })
+  const width = Math.min(100, (value / MAX_STAT_VALUE) * 100)
+
+  return (
+    <div className="stat-row">
+      <span>{label}</span>
+      <div className="stat-track">
+        <span className="stat-fill" style={{ width: `${width}%` }} />
+      </div>
+      <strong>{Math.round(displayValue)}</strong>
+    </div>
+  )
+}
 
 export function PokemonModal({
   pokemon,
@@ -122,13 +166,13 @@ export function PokemonModal({
           </div>
 
           <div className="detail-metrics">
-            <span>
+            <span className="metric-card">
               <Ruler size={17} aria-hidden="true" />
-              {formatHeight(pokemon.height)}
+              <MetricCounter targetValue={pokemon.height / 10} unit="m" />
             </span>
-            <span>
+            <span className="metric-card">
               <Scale size={17} aria-hidden="true" />
-              {formatWeight(pokemon.weight)}
+              <MetricCounter targetValue={pokemon.weight / 10} unit="kg" />
             </span>
           </div>
 
@@ -137,19 +181,12 @@ export function PokemonModal({
             <div className="stat-list">
               {DETAIL_STATS.map((statName) => {
                 const value = getStatValue(pokemon, statName)
-                const width = Math.min(100, (value / MAX_STAT_VALUE) * 100)
-
                 return (
-                  <div className="stat-row" key={`${pokemon.id}-${statName}`}>
-                    <span>{STAT_LABELS[statName]}</span>
-                    <div className="stat-track">
-                      <span
-                        className="stat-fill"
-                        style={{ width: `${width}%` }}
-                      />
-                    </div>
-                    <strong>{value}</strong>
-                  </div>
+                  <StatRow
+                    key={`${pokemon.id}-${statName}`}
+                    label={STAT_LABELS[statName]}
+                    value={value}
+                  />
                 )
               })}
             </div>
